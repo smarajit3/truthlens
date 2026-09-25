@@ -1,1 +1,38 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TruthLens</title><link rel="stylesheet" href="styles.css"></head><body><header><div class="wrap nav"><div class="brand"><span>✓</span> TruthLens</div><small id="apiStatus">Demo mode</small></div></header><main class="wrap"><section class="hero"><div class="eyebrow">Evidence-first verification</div><h1>Verify before you share.</h1><p>Upload a screenshot, extract its claims, find evidence, and review a structured analysis.</p></section><section class="card"><div id="dropzone" class="dropzone"><div class="icon">🖼️</div><h2>Upload a screenshot</h2><p>PNG, JPG, WEBP · Maximum 10 MB</p><button id="chooseBtn" class="btn primary" type="button">Choose image</button><input id="fileInput" type="file" accept="image/*"><p class="hint">You can also drag and drop an image here.</p></div><div id="error" class="notice hidden"></div></section><section id="workspace" class="hidden section"><div class="head"><h2>Review image</h2><button id="clearBtn" class="btn danger">Remove</button></div><div class="grid card"><div><img id="preview" alt="Uploaded screenshot"></div><div><label><b>Extracted text</b></label><textarea id="text" rows="12" placeholder="OCR / AI extracted text will appear here"></textarea><div class="actions"><button id="analyzeBtn" class="btn primary">Analyze image</button><button id="manualBtn" class="btn secondary">Add claim manually</button></div></div></div></section><section id="claimsSection" class="hidden section"><div class="head"><h2>Claims</h2><span id="count"></span></div><div class="card"><div id="claims"></div><div class="actions"><button id="addBtn" class="btn secondary">+ Add claim</button><button id="searchBtn" class="btn secondary">Find evidence</button><button id="verifyBtn" class="btn primary">Verify with evidence</button></div></div></section><section id="evidenceSection" class="hidden section"><div class="head"><h2>Evidence</h2><span class="hint">Sources discovered by the zero-cost news adapter</span></div><div class="card"><div id="evidence"></div></div></section><section id="reportSection" class="hidden section"><div class="head"><h2>Verification report</h2><span id="reportMode" class="hint"></span></div><div class="card"><div id="report"></div></div></section></main><footer>TruthLens · Prototype. Evidence and uncertainty should be inspected before sharing.</footer><script src="app.js" defer></script></body></html>
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TruthLens</title><link rel="stylesheet" href="styles.css"></head><body><header><div class="wrap nav"><div class="brand"><span>✓</span> TruthLens</div><small id="apiStatus">Demo mode</small></div></header><main class="wrap"><section class="hero"><div class="eyebrow">Evidence-first verification</div><h1>Verify before you share.</h1><p>Upload a screenshot, extract its claims, find evidence, and review a structured analysis.</p></section>
+	
+	<section class="card"><div id="dropzone" class="dropzone"><div class="icon">🖼️</div><h2>Upload a screenshot</h2><p>PNG, JPG, WEBP · Maximum 10 MB</p><button id="chooseBtn" class="btn primary" type="button">Choose image</button><input id="fileInput" type="file" accept="image/*"><p class="hint">You can also drag and drop an image here.</p></div><div id="error" class="notice hidden"></div></section>
+	
+	
+	<section id="workspace" class="hidden section"><div class="head"><h2>Review image</h2><button id="clearBtn" class="btn danger">Remove</button></div><div class="grid card"><div><img id="preview" alt="Uploaded screenshot"></div><div><label><b>Extracted text</b></label><textarea id="text" rows="12" placeholder="OCR / AI extracted text will appear here"></textarea><div class="actions"><button id="analyzeBtn" class="btn primary">Analyze image</button><button id="manualBtn" class="btn secondary">Add claim manually</button></div></div></div></section>
+	
+	
+	<section id="claimsSection" class="hidden section"><div class="head"><h2>Claims</h2><span id="count"></span></div><div class="card"><div id="claims"></div><div class="actions"><button id="addBtn" class="btn secondary">+ Add claim</button><button id="searchBtn" class="btn secondary">Find evidence</button><button id="verifyBtn" class="btn primary">Verify with evidence</button></div></div></section>
+	
+	<div id="resultsGrid" class="results-grid">
+
+  <section id="evidenceSection" class="hidden section">
+    <div class="head">
+      <h2>Evidence</h2>
+      <span class="hint">Sources discovered by the zero-cost news adapter</span>
+    </div>
+
+    <div class="card">
+      <div id="evidence"></div>
+    </div>
+  </section>
+
+  <section id="reportSection" class="hidden section">
+    <div class="head">
+      <h2>Verification Report</h2>
+      <span id="reportMode" class="hint"></span>
+    </div>
+
+    <div class="card">
+      <div id="report"></div>
+    </div>
+  </section>
+
+</div>
+	
+
+</main><footer>TruthLens · Prototype. Evidence and uncertainty should be inspected before sharing.</footer><script src="app.js" defer></script></body></html>
