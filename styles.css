@@ -100,3 +100,41 @@
   margin:4px 0 0;
   line-height:1.5;
 }
+
+
+.evidenceItem{
+  padding:16px 0;
+  border-bottom:1px solid rgba(0,0,0,.08);
+}
+
+.evidenceItem:last-child{
+  border-bottom:none;
+}
+
+.evidenceTitle{
+  font-weight:700;
+  line-height:1.45;
+  margin-bottom:6px;
+}
+
+.evidenceMeta{
+  font-size:.85rem;
+  margin-bottom:8px;
+}
+
+.evidenceSnippet{
+  margin:8px 0;
+  line-height:1.5;
+}
+
+.evidenceLink{
+  display:inline-block;
+  margin-top:6px;
+  font-size:.9rem;
+  font-weight:600;
+  text-decoration:none;
+}
+
+.evidenceLink:hover{
+  text-decoration:underline;
+}
