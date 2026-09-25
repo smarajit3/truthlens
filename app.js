@@ -56,6 +56,7 @@ async function analyze(){
     );
 
     renderClaims();
+    hide('dropzone');
     show('claimsSection');
     $('claimsSection').scrollIntoView({behavior:'smooth'});
 
