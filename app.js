@@ -75,7 +75,7 @@ async function findEvidence(){
         throw new Error(data.error || 'Search failed');
       }
 
-      (data.results || []).forEach(v=>{
+      (data.evidence || []).forEach(v=>{
         all.push({...v,claim:q});
       });
     }
