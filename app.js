@@ -1,6 +1,6 @@
 (() => {
 'use strict';
-const API='http://localhost:8787'; const $=id=>document.getElementById(id); let imageData=''; let claims=[]; let evidence=[];
+const API='https://truthlens-backend-2ix3.onrender.com'; const $=id=>document.getElementById(id); let imageData=''; let claims=[]; let evidence=[];
 const show=id=>$(id).classList.remove('hidden'), hide=id=>$(id).classList.add('hidden');
 function msg(s){$('error').textContent=s;s?show('error'):hide('error')}
 function renderClaims(){const box=$('claims');box.innerHTML='';$('count').textContent=`${claims.length} claim${claims.length===1?'':'s'}`;if(!claims.length){box.innerHTML='<p class="hint">No claims yet.</p>';return}claims.forEach((c,i)=>{const row=document.createElement('div');row.className='claim';const input=document.createElement('input');input.value=c.claim||c;input.addEventListener('input',()=>claims[i]={...(typeof claims[i]==='object'?claims[i]:{}),claim:input.value});const b=document.createElement('button');b.textContent='×';b.onclick=()=>{claims.splice(i,1);renderClaims()};row.append(input,b);box.append(row)})}
