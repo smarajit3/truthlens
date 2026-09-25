@@ -6,7 +6,25 @@ function msg(s){$('error').textContent=s;s?show('error'):hide('error')}
 function renderClaims(){const box=$('claims');box.innerHTML='';$('count').textContent=`${claims.length} claim${claims.length===1?'':'s'}`;if(!claims.length){box.innerHTML='<p class="hint">No claims yet.</p>';return}claims.forEach((c,i)=>{const row=document.createElement('div');row.className='claim';const input=document.createElement('input');input.value=c.claim||c;input.addEventListener('input',()=>claims[i]={...(typeof claims[i]==='object'?claims[i]:{}),claim:input.value});const b=document.createElement('button');b.textContent='×';b.onclick=()=>{claims.splice(i,1);renderClaims()};row.append(input,b);box.append(row)})}
 function addClaim(){claims.push({claim:'New factual claim to verify',type:'factual'});renderClaims();show('claimsSection')}
 function fileSelected(file){msg('');if(!file)return;if(!file.type.startsWith('image/'))return msg('Please select an image.');if(file.size>10*1024*1024)return msg('Image must be smaller than 10 MB.');const r=new FileReader();r.onload=()=>{imageData=r.result;$('preview').src=imageData;$('text').value='';show('workspace');hide('claimsSection');hide('evidenceSection');hide('reportSection')};r.readAsDataURL(file)}
-async function health(){try{const r=await fetch(API+'/api/health');const x=await r.json();$('apiStatus').textContent=x.configured?'Live Gemini backend connected':'Backend found · Gemini key missing'}catch{$('apiStatus').textContent='Demo mode · backend optional'}}
+
+async function health(){
+  try{
+    const r = await fetch(API + '/api/health');
+    const x = await r.json();
+
+    if(x.ok && x.geminiConfigured){
+      $('apiStatus').textContent = 'Live AI backend connected';
+    }else if(x.ok){
+      $('apiStatus').textContent = 'Backend connected · AI fallback available';
+    }else{
+      $('apiStatus').textContent = 'Backend connected';
+    }
+
+  }catch{
+    $('apiStatus').textContent = 'Demo mode · backend optional';
+  }
+}
+  
 async function analyze(){
   if(!imageData)return msg('Upload an image first.');
 
