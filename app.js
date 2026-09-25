@@ -160,10 +160,11 @@ function renderEvidence(){
     return msg('Add at least one claim first.');
   }
 
-  show('reportSection');
+  
 
   $('report').innerHTML =
     '<p class="hint">Verifying claims…</p>';
+    
 
   try{
     if(!evidence.length){
