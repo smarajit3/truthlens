@@ -66,7 +66,7 @@ async function findEvidence(){
       const r=await fetch(API+'/api/evidence-search',{
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({query:q})
+        body:JSON.stringify({claim:q})
       });
 
       const data=await r.json();
