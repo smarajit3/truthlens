@@ -1,1 +1,102 @@
 :root{--bg:#f5f7fb;--card:#fff;--ink:#182033;--muted:#69758b;--line:#e1e6ef;--blue:#3d5bd9;--dark:#2945ae;--red:#c74752;--shadow:0 14px 40px rgba(30,45,90,.08)}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Segoe UI,Arial,sans-serif}.wrap{width:min(1080px,calc(100% - 32px));margin:auto}header{background:#fff;border-bottom:1px solid var(--line)}.nav{height:68px;display:flex;align-items:center;justify-content:space-between}.brand{font-size:21px;font-weight:800}.brand span{display:inline-grid;place-items:center;background:var(--blue);color:white;width:35px;height:35px;border-radius:10px;margin-right:8px}.hint,small{color:var(--muted);font-size:13px}.hero{text-align:center;padding:54px 0 30px}.eyebrow{color:var(--blue);font-weight:800;font-size:12px;letter-spacing:1.4px;text-transform:uppercase}.hero h1{font-size:clamp(36px,6vw,58px);line-height:1.05;margin:12px 0}.hero p{color:var(--muted);font-size:17px}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:var(--shadow)}.dropzone{border:2px dashed #bdc8ef;border-radius:16px;text-align:center;padding:40px 18px;background:#fafbff}.icon{font-size:40px}.dropzone h2{margin:8px 0}.dropzone p{color:var(--muted)}#fileInput{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}.btn{border:0;border-radius:11px;padding:11px 16px;font-weight:750;cursor:pointer}.primary{background:var(--blue);color:#fff}.primary:hover{background:var(--dark)}.secondary{background:#edf1fb;color:var(--blue)}.danger{background:#fff0f1;color:var(--red)}.section{margin:28px 0}.hidden{display:none!important}.head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.head h2{margin:0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}.grid img{width:100%;max-height:470px;object-fit:contain;border:1px solid var(--line);border-radius:12px;background:#f1f3f8}textarea{width:100%;margin-top:8px;border:1px solid var(--line);border-radius:10px;padding:12px;resize:vertical}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}.claim{display:flex;gap:8px;border:1px solid var(--line);border-radius:11px;padding:10px;margin:9px 0}.claim input{flex:1;border:0;outline:0}.claim button{border:0;background:none;color:var(--red);cursor:pointer}.notice{margin-top:14px;padding:11px 14px;border-radius:10px;background:#fff7e8;border:1px solid #f0d39a;color:#80560b}.evidenceItem{border-bottom:1px solid var(--line);padding:14px 0}.evidenceItem:last-child{border-bottom:0}.evidenceItem a{color:var(--blue);font-weight:700}.result{border:1px solid var(--line);border-radius:14px;padding:15px;margin:10px 0}.supported{background:#edf9f3}.contradicted{background:#fff0f1}.misleading{background:#fff7e8}.unverified,.opinion,.satire{background:#f1f3f8}footer{text-align:center;padding:40px;color:var(--muted);font-size:13px}@media(max-width:760px){.grid{grid-template-columns:1fr}.head{align-items:flex-start;flex-wrap:wrap}}
+.report-assessment{
+  padding:20px;
+  border-radius:14px;
+  margin-bottom:16px;
+  border:1px solid #ddd;
+}
+
+.report-assessment.good{
+  background:#eefaf1;
+  border-color:#8bc99a;
+}
+
+.report-assessment.bad{
+  background:#fff0f0;
+  border-color:#e29a9a;
+}
+
+.report-assessment.warn{
+  background:#fff9e8;
+  border-color:#e3c56b;
+}
+
+.report-label{
+  font-size:13px;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  opacity:.7;
+}
+
+.report-status{
+  font-size:24px;
+  font-weight:700;
+  margin:6px 0 8px;
+}
+
+.report-assessment p{
+  margin:0;
+}
+
+.report-note{
+  padding:14px 16px;
+  margin-bottom:16px;
+  border-left:4px solid #999;
+  background:#f7f7f7;
+  font-size:14px;
+  line-height:1.5;
+}
+
+.report-summary{
+  display:flex;
+  gap:20px;
+  flex-wrap:wrap;
+  margin-bottom:18px;
+}
+
+.claim-result{
+  padding:16px;
+  margin-bottom:12px;
+  border:1px solid #ddd;
+  border-radius:12px;
+}
+
+.claim-number{
+  font-size:12px;
+  font-weight:600;
+  text-transform:uppercase;
+  opacity:.65;
+}
+
+.claim-text{
+  font-size:16px;
+  font-weight:600;
+  margin:6px 0 10px;
+}
+
+.claim-status{
+  display:inline-block;
+  padding:5px 10px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:700;
+  margin-bottom:8px;
+}
+
+.claim-status.supported{
+  background:#e5f7e9;
+}
+
+.claim-status.contradicted{
+  background:#ffe5e5;
+}
+
+.claim-status.unclear{
+  background:#fff3cf;
+}
+
+.claim-reason{
+  margin:4px 0 0;
+  line-height:1.5;
+}
