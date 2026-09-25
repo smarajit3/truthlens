@@ -149,11 +149,6 @@ function renderEvidence(){
         ${published ? ' · ' + esc(published) : ''}
       </div>
 
-      ${
-        e.snippet
-          ? `<p class="evidenceSnippet">${esc(e.snippet)}</p>`
-          : ''
-      }
     `;
 
     box.append(d);
