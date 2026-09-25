@@ -162,3 +162,39 @@
   text-decoration:underline;
 }
 
+/* Evidence + Verification Report layout */
+
+.results-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+  margin-top: 24px;
+}
+
+.results-grid .section {
+  margin-top: 0;
+  min-width: 0;
+}
+
+/* Keep Evidence visually compact */
+#evidenceSection .card {
+  max-height: 620px;
+  overflow-y: auto;
+}
+
+/* Keep long report content inside its column */
+#reportSection .card {
+  min-width: 0;
+}
+
+/* Mobile */
+@media (max-width: 850px) {
+  .results-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #evidenceSection .card {
+    max-height: none;
+  }
+}
