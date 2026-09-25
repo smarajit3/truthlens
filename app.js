@@ -133,7 +133,15 @@ function renderEvidence(){
 
     d.innerHTML = `
       <div class="evidenceTitle">
-        ${esc(title)}
+        ${
+          link
+            ? `<a
+                href="${esc(link)}"
+                target="_blank"
+                rel="noopener noreferrer"
+              >${esc(title)}</a>`
+            : esc(title)
+        }
       </div>
 
       <div class="hint evidenceMeta">
@@ -144,19 +152,6 @@ function renderEvidence(){
       ${
         e.snippet
           ? `<p class="evidenceSnippet">${esc(e.snippet)}</p>`
-          : ''
-      }
-
-      ${
-        link
-          ? `<a
-              class="evidenceLink"
-              href="${esc(link)}"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Open source ↗
-            </a>`
           : ''
       }
     `;
