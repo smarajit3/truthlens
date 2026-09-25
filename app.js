@@ -51,7 +51,47 @@ async function analyze(){
     $('analyzeBtn').textContent='Analyze image';
   }
 }
-async function findEvidence(){if(!claims.length)return msg('Add at least one claim first.');show('evidenceSection');$('evidence').innerHTML='<p class="hint">Searching…</p>';const all=[];try{for(const c of claims.slice(0,5)){const q=typeof c==='string'?c:c.claim;const r=await fetch(API+'/api/evidence-search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q})});if(!r.ok)throw new Error((await r.json()).error||'Search failed');const x=await r.json();x.results.forEach(v=>all.push({...v,claim:q}))}evidence=all;renderEvidence();}catch(e){$('evidence').innerHTML='<div class="notice">Evidence search is unavailable in direct-file demo mode. Start the backend to enable it.</div>'}}
+async function findEvidence(){
+  if(!claims.length)return msg('Add at least one claim first.');
+
+  show('evidenceSection');
+  $('evidence').innerHTML='<p class="hint">Searching…</p>';
+
+  const all=[];
+
+  try{
+    for(const c of claims.slice(0,5)){
+      const q=typeof c==='string'?c:c.claim;
+
+      const r=await fetch(API+'/api/evidence-search',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({query:q})
+      });
+
+      const data=await r.json();
+
+      if(!r.ok){
+        throw new Error(data.error || 'Search failed');
+      }
+
+      (data.results || []).forEach(v=>{
+        all.push({...v,claim:q});
+      });
+    }
+
+    evidence=all;
+    renderEvidence();
+
+  }catch(e){
+    console.error('Evidence search error:',e);
+
+    $('evidence').innerHTML=
+      '<div class="notice">Evidence search error: '+
+      esc(e.message || 'Unknown error')+
+      '</div>';
+  }
+}
 function renderEvidence(){const box=$('evidence');box.innerHTML='';if(!evidence.length){box.innerHTML='<p class="hint">No evidence sources found.</p>';return}evidence.forEach((e,i)=>{const d=document.createElement('div');d.className='evidenceItem';d.innerHTML=`<a href="${esc(e.url)}" target="_blank" rel="noopener">${esc(e.title||'Source')}</a><div class="hint">${esc(e.source||'')} · ${esc(e.published||'')}</div><p>${esc(e.snippet||'')}</p>`;box.append(d)})}
 async function verify(){if(!claims.length)return msg('Add at least one claim first.');if(!evidence.length){await findEvidence();if(!evidence.length)return}const r=await fetch(API+'/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({claims,evidence,language:'English'})});if(!r.ok){const x=await r.json();return msg(x.error||'Verification failed.')}const x=await r.json();renderReport(x.results||[])}
 function renderReport(results){const box=$('report');box.innerHTML='';$('reportMode').textContent='AI analysis of supplied evidence';results.forEach(x=>{const d=document.createElement('div');d.className='result '+x.verdict;d.innerHTML=`<b>${esc(x.verdict)}</b><p>${esc(x.claim)}</p><div>${esc(x.explanation)}</div>${x.limitations?.length?'<p class="hint">Limitations: '+esc(x.limitations.join('; '))+'</p>':''}`;box.append(d)});show('reportSection');$('reportSection').scrollIntoView({behavior:'smooth'})}
