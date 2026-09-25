@@ -93,7 +93,68 @@ async function findEvidence(){
   }
 }
 function renderEvidence(){const box=$('evidence');box.innerHTML='';if(!evidence.length){box.innerHTML='<p class="hint">No evidence sources found.</p>';return}evidence.forEach((e,i)=>{const d=document.createElement('div');d.className='evidenceItem';d.innerHTML=`<a href="${esc(e.url)}" target="_blank" rel="noopener">${esc(e.title||'Source')}</a><div class="hint">${esc(e.source||'')} · ${esc(e.published||'')}</div><p>${esc(e.snippet||'')}</p>`;box.append(d)})}
-async function verify(){if(!claims.length)return msg('Add at least one claim first.');if(!evidence.length){await findEvidence();if(!evidence.length)return}const r=await fetch(API+'/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({claims,evidence,language:'English'})});if(!r.ok){const x=await r.json();return msg(x.error||'Verification failed.')}const x=await r.json();renderReport(x.results||[])}
+async function verify(){
+  if(!claims.length){
+    return msg('Add at least one claim first.');
+  }
+
+  show('reportSection');
+
+  $('report').innerHTML =
+    '<p class="hint">Verifying claims…</p>';
+
+  try{
+    if(!evidence.length){
+      await findEvidence();
+    }
+
+    if(!evidence.length){
+      $('report').innerHTML =
+        '<div class="notice">No evidence was found to verify the claims.</div>';
+      return;
+    }
+
+    const r = await fetch(API + '/api/verify',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({
+        claims,
+        evidence,
+        language:'English'
+      })
+    });
+
+    const x = await r.json();
+
+    if(!r.ok){
+      throw new Error(
+        x?.error ||
+        x?.message ||
+        'Verification failed.'
+      );
+    }
+
+    console.log('Verify response:', x);
+
+    if(!Array.isArray(x.results)){
+      throw new Error(
+        'The verification API returned an unexpected response.'
+      );
+    }
+
+    renderReport(x.results);
+
+  }catch(e){
+    console.error('Verification error:', e);
+
+    $('report').innerHTML =
+      '<div class="notice">Verification error: ' +
+      esc(e.message || 'Unknown error') +
+      '</div>';
+  }
+}
 function renderReport(results){const box=$('report');box.innerHTML='';$('reportMode').textContent='AI analysis of supplied evidence';results.forEach(x=>{const d=document.createElement('div');d.className='result '+x.verdict;d.innerHTML=`<b>${esc(x.verdict)}</b><p>${esc(x.claim)}</p><div>${esc(x.explanation)}</div>${x.limitations?.length?'<p class="hint">Limitations: '+esc(x.limitations.join('; '))+'</p>':''}`;box.append(d)});show('reportSection');$('reportSection').scrollIntoView({behavior:'smooth'})}
 function esc(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 $('chooseBtn').onclick=()=>$('fileInput').click();$('fileInput').onchange=e=>fileSelected(e.target.files[0]);$('analyzeBtn').onclick=analyze;$('manualBtn').onclick=addClaim;$('addBtn').onclick=addClaim;$('searchBtn').onclick=findEvidence;$('verifyBtn').onclick=verify;$('clearBtn').onclick=()=>{imageData='';claims=[];evidence=[];$('fileInput').value='';$('preview').removeAttribute('src');$('text').value='';hide('workspace');hide('claimsSection');hide('evidenceSection');hide('reportSection');msg('')};
