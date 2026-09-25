@@ -111,7 +111,59 @@ async function findEvidence(){
       '</div>';
   }
 }
-function renderEvidence(){const box=$('evidence');box.innerHTML='';if(!evidence.length){box.innerHTML='<p class="hint">No evidence sources found.</p>';return}evidence.forEach((e,i)=>{const d=document.createElement('div');d.className='evidenceItem';d.innerHTML=`<a href="${esc(e.url)}" target="_blank" rel="noopener">${esc(e.title||'Source')}</a><div class="hint">${esc(e.source||'')} · ${esc(e.published||'')}</div><p>${esc(e.snippet||'')}</p>`;box.append(d)})}
+
+  
+function renderEvidence(){
+  const box = $('evidence');
+  box.innerHTML = '';
+
+  if(!evidence.length){
+    box.innerHTML = '<p class="hint">No evidence sources found.</p>';
+    return;
+  }
+
+  evidence.forEach((e,i)=>{
+    const d = document.createElement('div');
+    d.className = 'evidenceItem';
+
+    const title = e.title || 'Source';
+    const source = e.source || 'Unknown source';
+    const published = e.pubDate || '';
+    const link = e.link || '';
+
+    d.innerHTML = `
+      <div class="evidenceTitle">
+        ${esc(title)}
+      </div>
+
+      <div class="hint evidenceMeta">
+        ${esc(source)}
+        ${published ? ' · ' + esc(published) : ''}
+      </div>
+
+      ${
+        e.snippet
+          ? `<p class="evidenceSnippet">${esc(e.snippet)}</p>`
+          : ''
+      }
+
+      ${
+        link
+          ? `<a
+              class="evidenceLink"
+              href="${esc(link)}"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open source ↗
+            </a>`
+          : ''
+      }
+    `;
+
+    box.append(d);
+  });
+}
 
   async function verify(){
   if(!claims.length){
