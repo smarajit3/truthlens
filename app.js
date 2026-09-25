@@ -7,7 +7,50 @@ function renderClaims(){const box=$('claims');box.innerHTML='';$('count').textCo
 function addClaim(){claims.push({claim:'New factual claim to verify',type:'factual'});renderClaims();show('claimsSection')}
 function fileSelected(file){msg('');if(!file)return;if(!file.type.startsWith('image/'))return msg('Please select an image.');if(file.size>10*1024*1024)return msg('Image must be smaller than 10 MB.');const r=new FileReader();r.onload=()=>{imageData=r.result;$('preview').src=imageData;$('text').value='';show('workspace');hide('claimsSection');hide('evidenceSection');hide('reportSection')};r.readAsDataURL(file)}
 async function health(){try{const r=await fetch(API+'/api/health');const x=await r.json();$('apiStatus').textContent=x.configured?'Live Gemini backend connected':'Backend found · Gemini key missing'}catch{$('apiStatus').textContent='Demo mode · backend optional'}}
-async function analyze(){if(!imageData)return msg('Upload an image first.');msg('');$('analyzeBtn').disabled=true;$('analyzeBtn').textContent='Analyzing…';try{const r=await fetch(API+'/api/analyze-image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:imageData,language:'English'})});if(!r.ok)throw new Error((await r.json()).error||'API request failed');const x=await r.json();$('text').value=x.extractedText||'';claims=(x.claims||[]).filter(c=>c.type!=='opinion'&&c.type!=='satire');renderClaims();show('claimsSection');$('claimsSection').scrollIntoView({behavior:'smooth'});}catch(e){msg('Live API unavailable: '+e.message+'. You can still use the page in demo mode.');if(!claims.length)addClaim()}finally{$('analyzeBtn').disabled=false;$('analyzeBtn').textContent='Analyze image'}}
+async function analyze(){
+  if(!imageData)return msg('Upload an image first.');
+
+  msg('');
+  $('analyzeBtn').disabled=true;
+  $('analyzeBtn').textContent='Analyzing…';
+
+  try{
+    const mimeType = imageData.match(/^data:(image\/[^;]+);base64,/)?.[1] || 'image/jpeg';
+
+    const r = await fetch(API+'/api/analyze-image',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        imageData:imageData,
+        mimeType:mimeType
+      })
+    });
+
+    const data = await r.json();
+
+    if(!r.ok){
+      throw new Error(data.error || 'API request failed');
+    }
+
+    $('text').value = data.text || '';
+    claims = (data.claims || []).filter(
+      c => c.type !== 'opinion' && c.type !== 'satire'
+    );
+
+    renderClaims();
+    show('claimsSection');
+    $('claimsSection').scrollIntoView({behavior:'smooth'});
+
+  }catch(e){
+    msg('Live API unavailable: '+e.message+'. You can still use the page in demo mode.');
+
+    if(!claims.length)addClaim();
+
+  }finally{
+    $('analyzeBtn').disabled=false;
+    $('analyzeBtn').textContent='Analyze image';
+  }
+}
 async function findEvidence(){if(!claims.length)return msg('Add at least one claim first.');show('evidenceSection');$('evidence').innerHTML='<p class="hint">Searching…</p>';const all=[];try{for(const c of claims.slice(0,5)){const q=typeof c==='string'?c:c.claim;const r=await fetch(API+'/api/evidence-search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q})});if(!r.ok)throw new Error((await r.json()).error||'Search failed');const x=await r.json();x.results.forEach(v=>all.push({...v,claim:q}))}evidence=all;renderEvidence();}catch(e){$('evidence').innerHTML='<div class="notice">Evidence search is unavailable in direct-file demo mode. Start the backend to enable it.</div>'}}
 function renderEvidence(){const box=$('evidence');box.innerHTML='';if(!evidence.length){box.innerHTML='<p class="hint">No evidence sources found.</p>';return}evidence.forEach((e,i)=>{const d=document.createElement('div');d.className='evidenceItem';d.innerHTML=`<a href="${esc(e.url)}" target="_blank" rel="noopener">${esc(e.title||'Source')}</a><div class="hint">${esc(e.source||'')} · ${esc(e.published||'')}</div><p>${esc(e.snippet||'')}</p>`;box.append(d)})}
 async function verify(){if(!claims.length)return msg('Add at least one claim first.');if(!evidence.length){await findEvidence();if(!evidence.length)return}const r=await fetch(API+'/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({claims,evidence,language:'English'})});if(!r.ok){const x=await r.json();return msg(x.error||'Verification failed.')}const x=await r.json();renderReport(x.results||[])}
