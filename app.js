@@ -164,7 +164,117 @@ function renderEvidence(){const box=$('evidence');box.innerHTML='';if(!evidence.
 }
 
   
-function renderReport(results){const box=$('report');box.innerHTML='';$('reportMode').textContent='AI analysis of supplied evidence';results.forEach(x=>{const d=document.createElement('div');d.className='result '+x.verdict;d.innerHTML=`<b>${esc(x.verdict)}</b><p>${esc(x.claim)}</p><div>${esc(x.explanation)}</div>${x.limitations?.length?'<p class="hint">Limitations: '+esc(x.limitations.join('; '))+'</p>':''}`;box.append(d)});show('reportSection');$('reportSection').scrollIntoView({behavior:'smooth'})}
+function renderReport(results){
+  show('reportSection');
+
+  const report = $('report');
+
+  if(!Array.isArray(results) || !results.length){
+    report.innerHTML =
+      '<div class="notice">No verification results available.</div>';
+    return;
+  }
+
+  let supported = 0;
+  let contradicted = 0;
+  let unclear = 0;
+
+  results.forEach(item=>{
+    const status = String(item.status || 'unclear').toLowerCase();
+
+    if(status === 'supported'){
+      supported++;
+    }else if(status === 'contradicted'){
+      contradicted++;
+    }else{
+      unclear++;
+    }
+  });
+
+  let assessment;
+  let assessmentClass;
+  let explanation;
+
+  if(contradicted > 0 && supported === 0){
+    assessment = 'Claims appear contradicted';
+    assessmentClass = 'bad';
+    explanation =
+      'The available evidence materially conflicts with the factual claims in the screenshot.';
+  }else if(supported > 0 && contradicted === 0 && unclear === 0){
+    assessment = 'Claims appear supported';
+    assessmentClass = 'good';
+    explanation =
+      'The available evidence materially supports the factual claims in the screenshot.';
+  }else if(supported > 0 && contradicted > 0){
+    assessment = 'Claims are mixed';
+    assessmentClass = 'warn';
+    explanation =
+      'Some claims are supported while other claims are contradicted by the available evidence.';
+  }else{
+    assessment = 'Inconclusive';
+    assessmentClass = 'warn';
+    explanation =
+      'The available evidence is insufficient or unclear for a confident determination.';
+  }
+
+  let html = `
+    <div class="report-assessment ${assessmentClass}">
+      <div class="report-label">Screenshot assessment</div>
+      <div class="report-status">${esc(assessment)}</div>
+      <p>${esc(explanation)}</p>
+    </div>
+
+    <div class="report-note">
+      <strong>Important:</strong>
+      This assessment verifies the factual claims against available evidence.
+      It does not establish whether the screenshot image itself was digitally
+      edited, fabricated, or manipulated.
+    </div>
+
+    <div class="report-summary">
+      <span>Supported: <strong>${supported}</strong></span>
+      <span>Contradicted: <strong>${contradicted}</strong></span>
+      <span>Inconclusive: <strong>${unclear}</strong></span>
+    </div>
+
+    <div class="claim-results">
+  `;
+
+  results.forEach((item,index)=>{
+    const status = String(item.status || 'unclear').toLowerCase();
+
+    let label = 'Inconclusive';
+
+    if(status === 'supported'){
+      label = 'Supported';
+    }else if(status === 'contradicted'){
+      label = 'Contradicted';
+    }
+
+    html += `
+      <div class="claim-result">
+        <div class="claim-number">Claim ${index + 1}</div>
+        <div class="claim-text">${esc(item.claim || '')}</div>
+
+        <div class="claim-status ${esc(status)}">
+          ${esc(label)}
+        </div>
+
+        <p class="claim-reason">
+          ${esc(item.reason || 'No explanation was provided.')}
+        </p>
+      </div>
+    `;
+  });
+
+  html += `
+    </div>
+  `;
+
+  report.innerHTML = html;
+}
+
+  
 function esc(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 $('chooseBtn').onclick=()=>$('fileInput').click();$('fileInput').onchange=e=>fileSelected(e.target.files[0]);$('analyzeBtn').onclick=analyze;$('manualBtn').onclick=addClaim;$('addBtn').onclick=addClaim;$('searchBtn').onclick=findEvidence;$('verifyBtn').onclick=verify;$('clearBtn').onclick=()=>{imageData='';claims=[];evidence=[];$('fileInput').value='';$('preview').removeAttribute('src');$('text').value='';hide('workspace');hide('claimsSection');hide('evidenceSection');hide('reportSection');msg('')};
 const dz=$('dropzone');['dragenter','dragover'].forEach(e=>dz.addEventListener(e,x=>{x.preventDefault();dz.style.background='#eef2ff'}));['dragleave','drop'].forEach(e=>dz.addEventListener(e,x=>{x.preventDefault();dz.style.background=''}));dz.addEventListener('drop',e=>fileSelected(e.dataTransfer.files[0]));health();
