@@ -5,7 +5,30 @@ const show=id=>$(id).classList.remove('hidden'), hide=id=>$(id).classList.add('h
 function msg(s){$('error').textContent=s;s?show('error'):hide('error')}
 function renderClaims(){const box=$('claims');box.innerHTML='';$('count').textContent=`${claims.length} claim${claims.length===1?'':'s'}`;if(!claims.length){box.innerHTML='<p class="hint">No claims yet.</p>';return}claims.forEach((c,i)=>{const row=document.createElement('div');row.className='claim';const input=document.createElement('input');input.value=c.claim||c;input.addEventListener('input',()=>claims[i]={...(typeof claims[i]==='object'?claims[i]:{}),claim:input.value});const b=document.createElement('button');b.textContent='×';b.onclick=()=>{claims.splice(i,1);renderClaims()};row.append(input,b);box.append(row)})}
 function addClaim(){claims.push({claim:'New factual claim to verify',type:'factual'});renderClaims();show('claimsSection')}
-function fileSelected(file){msg('');if(!file)return;if(!file.type.startsWith('image/'))return msg('Please select an image.');if(file.size>10*1024*1024)return msg('Image must be smaller than 10 MB.');const r=new FileReader();r.onload=()=>{imageData=r.result;$('preview').src=imageData;$('text').value='';show('workspace');hide('claimsSection');hide('evidenceSection');hide('reportSection')};r.readAsDataURL(file)}
+function fileSelected(file){
+  msg('');
+  if(!file)return;
+  if(!file.type.startsWith('image/'))
+    return msg('Please select an image.');
+  if(file.size>10*1024*1024)
+    return msg('Image must be smaller than 10 MB.');
+  const r=new FileReader();
+  
+  r.onload=()=>{
+  imageData=r.result;
+  $('preview').src=imageData;
+  $('text').value='';
+
+  // Hide upload section immediately after image is selected
+  hide('dropzone');
+
+  show('workspace');
+  hide('claimsSection');
+  hide('evidenceSection');
+  hide('reportSection');
+};
+  
+  r.readAsDataURL(file)}
 
 async function health(){
   try{
@@ -56,7 +79,6 @@ async function analyze(){
     );
 
     renderClaims();
-    hide('dropzone');
     show('claimsSection');
     $('claimsSection').scrollIntoView({behavior:'smooth'});
 
@@ -338,6 +360,16 @@ function renderReport(results){
 
   
 function esc(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
-$('chooseBtn').onclick=()=>$('fileInput').click();$('fileInput').onchange=e=>fileSelected(e.target.files[0]);$('analyzeBtn').onclick=analyze;$('manualBtn').onclick=addClaim;$('addBtn').onclick=addClaim;$('searchBtn').onclick=findEvidence;$('verifyBtn').onclick=verify;$('clearBtn').onclick=()=>{imageData='';claims=[];evidence=[];$('fileInput').value='';$('preview').removeAttribute('src');$('text').value='';hide('workspace');hide('claimsSection');hide('evidenceSection');hide('reportSection');msg('')};
+$('chooseBtn').onclick=()=>$('fileInput').click();$('fileInput').onchange=e=>fileSelected(e.target.files[0]);$('analyzeBtn').onclick=analyze;$('manualBtn').onclick=addClaim;$('addBtn').onclick=addClaim;$('searchBtn').onclick=findEvidence;$('verifyBtn').onclick=verify;$('clearBtn').onclick=()=>{imageData='';claims=[];evidence=[];$('fileInput').value='';$('preview').removeAttribute('src');$('text').value='';
+                                                                                                                                                                                                                                                                                                       
+hide('workspace');
+hide('claimsSection');
+hide('evidenceSection');
+hide('reportSection');
+show('dropzone');
+msg('')};
+
+
+  
 const dz=$('dropzone');['dragenter','dragover'].forEach(e=>dz.addEventListener(e,x=>{x.preventDefault();dz.style.background='#eef2ff'}));['dragleave','drop'].forEach(e=>dz.addEventListener(e,x=>{x.preventDefault();dz.style.background=''}));dz.addEventListener('drop',e=>fileSelected(e.dataTransfer.files[0]));health();
 })();
