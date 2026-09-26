@@ -177,27 +177,85 @@ function renderEvidence(){
   });
 }
 
-  async function verify(){
+
+  
+
+async function verify(){
+
   if(!claims.length){
     return msg('Add at least one claim first.');
   }
 
-  
+  msg('');
 
-  $('report').innerHTML =
-    '<p class="hint">Verifying claims…</p>';
-    
+  const verifyBtn = $('verifyBtn');
+  verifyBtn.disabled = true;
+  verifyBtn.textContent = 'Finding evidence…';
+
+  hide('reportSection');
+  show('evidenceSection');
+
+  $('evidence').innerHTML =
+    '<p class="hint">Searching for evidence…</p>';
 
   try{
-    if(!evidence.length){
-      await findEvidence();
+
+    /* =========================
+       STEP 1: FIND EVIDENCE
+    ========================= */
+
+    evidence = [];
+
+    for(const c of claims.slice(0,5)){
+
+      const q = typeof c === 'string'
+        ? c
+        : c.claim;
+
+      if(!q) continue;
+
+      const r = await fetch(API + '/api/evidence-search',{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json'
+        },
+        body:JSON.stringify({
+          claim:q
+        })
+      });
+
+      const data = await r.json();
+
+      if(!r.ok){
+        throw new Error(
+          data.error || 'Evidence search failed.'
+        );
+      }
+
+      (data.evidence || []).forEach(v=>{
+        evidence.push({
+          ...v,
+          claim:q
+        });
+      });
     }
 
+    renderEvidence();
+
     if(!evidence.length){
-      $('report').innerHTML =
-        '<div class="notice">No evidence was found to verify the claims.</div>';
-      return;
+      throw new Error(
+        'No evidence sources were found for these claims.'
+      );
     }
+
+    /* =========================
+       STEP 2: VERIFY
+    ========================= */
+
+    verifyBtn.textContent = 'Verifying…';
+
+    $('report').innerHTML =
+      '<p class="hint">Verifying claims against the available evidence…</p>';
 
     const r = await fetch(API + '/api/verify',{
       method:'POST',
@@ -221,13 +279,14 @@ function renderEvidence(){
       );
     }
 
-    console.log('Verify response:', x);
+    console.log('Verify response:',x);
 
-    const results = Array.isArray(x.results)
-      ? x.results
-      : Array.isArray(x.claims)
-        ? x.claims
-        : [];
+    const results =
+      Array.isArray(x.results)
+        ? x.results
+        : Array.isArray(x.claims)
+          ? x.claims
+          : [];
 
     if(!results.length){
       throw new Error(
@@ -235,17 +294,40 @@ function renderEvidence(){
       );
     }
 
+    /* =========================
+       STEP 3: SHOW REPORT
+    ========================= */
+
     renderReport(results);
 
+    $('reportSection').scrollIntoView({
+      behavior:'smooth',
+      block:'start'
+    });
+
   }catch(e){
-    console.error('Verification error:', e);
+
+    console.error('Verification error:',e);
 
     $('report').innerHTML =
-      '<div class="notice">Verification error: ' +
-      esc(e.message || 'Unknown error') +
+      '<div class="notice">' +
+      esc(e.message || 'Verification failed.') +
       '</div>';
+
+    show('reportSection');
+
+  }finally{
+
+    verifyBtn.disabled = false;
+    verifyBtn.textContent = 'Verify with evidence';
+
   }
 }
+
+
+
+  
+  
 
   
 function renderReport(results){
@@ -360,7 +442,20 @@ function renderReport(results){
 
   
 function esc(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
-$('chooseBtn').onclick=()=>$('fileInput').click();$('fileInput').onchange=e=>fileSelected(e.target.files[0]);$('analyzeBtn').onclick=analyze;$('manualBtn').onclick=addClaim;$('addBtn').onclick=addClaim;$('searchBtn').onclick=findEvidence;$('verifyBtn').onclick=verify;$('clearBtn').onclick=()=>{imageData='';claims=[];evidence=[];$('fileInput').value='';$('preview').removeAttribute('src');$('text').value='';
+$('chooseBtn').onclick=()=>$('fileInput').click();
+  $('fileInput').onchange=e=>fileSelected(e.target.files[0]);
+  $('analyzeBtn').onclick=analyze;
+  $('manualBtn').onclick=addClaim;
+  $('addBtn').onclick=addClaim;
+ // $('searchBtn').onclick=findEvidence;
+  $('verifyBtn').onclick=verify;
+  $('clearBtn').onclick=()=>{
+    imageData='';
+    claims=[];
+    evidence=[];
+    $('fileInput').value='';
+    $('preview').removeAttribute('src');
+    $('text').value='';
                                                                                                                                                                                                                                                                                                        
 hide('workspace');
 hide('claimsSection');
