@@ -5,30 +5,46 @@ const show=id=>$(id).classList.remove('hidden'), hide=id=>$(id).classList.add('h
 function msg(s){$('error').textContent=s;s?show('error'):hide('error')}
 function renderClaims(){const box=$('claims');box.innerHTML='';$('count').textContent=`${claims.length} claim${claims.length===1?'':'s'}`;if(!claims.length){box.innerHTML='<p class="hint">No claims yet.</p>';return}claims.forEach((c,i)=>{const row=document.createElement('div');row.className='claim';const input=document.createElement('input');input.value=c.claim||c;input.addEventListener('input',()=>claims[i]={...(typeof claims[i]==='object'?claims[i]:{}),claim:input.value});const b=document.createElement('button');b.textContent='×';b.onclick=()=>{claims.splice(i,1);renderClaims()};row.append(input,b);box.append(row)})}
 function addClaim(){claims.push({claim:'New factual claim to verify',type:'factual'});renderClaims();show('claimsSection')}
+
+
+
+  
 function fileSelected(file){
   msg('');
-  if(!file)return;
-  if(!file.type.startsWith('image/'))
+
+  if(!file) return;
+
+  if(!file.type.startsWith('image/')){
     return msg('Please select an image.');
-  if(file.size>10*1024*1024)
+  }
+
+  if(file.size > 10 * 1024 * 1024){
     return msg('Image must be smaller than 10 MB.');
-  const r=new FileReader();
-  
-  r.onload=()=>{
-  imageData=r.result;
-  $('preview').src=imageData;
-  $('text').value='';
+  }
 
-  // Hide upload section immediately after image is selected
-  hide('dropzone');
+  const r = new FileReader();
 
-  show('workspace');
-  hide('claimsSection');
-  hide('evidenceSection');
-  hide('reportSection');
-};
+  r.onload = () => {
+    imageData = r.result;
+
+    $('preview').src = imageData;
+    $('text').value = '';
+
+    // Hide upload area immediately after image selection
+    hide('dropzone');
+
+    show('workspace');
+    hide('claimsSection');
+    hide('evidenceSection');
+    hide('reportSection');
+  };
+
+  r.readAsDataURL(file);
+}
+
+
   
-  r.readAsDataURL(file)}
+  
 
 async function health(){
   try{
@@ -189,6 +205,7 @@ async function verify(){
   msg('');
 
   const verifyBtn = $('verifyBtn');
+
   verifyBtn.disabled = true;
   verifyBtn.textContent = 'Finding evidence…';
 
@@ -200,12 +217,9 @@ async function verify(){
 
   try{
 
-    /* =========================
-       STEP 1: FIND EVIDENCE
-    ========================= */
-
     evidence = [];
 
+    // Search evidence for each claim
     for(const c of claims.slice(0,5)){
 
       const q = typeof c === 'string'
@@ -248,10 +262,7 @@ async function verify(){
       );
     }
 
-    /* =========================
-       STEP 2: VERIFY
-    ========================= */
-
+    // Now verify
     verifyBtn.textContent = 'Verifying…';
 
     $('report').innerHTML =
@@ -294,10 +305,7 @@ async function verify(){
       );
     }
 
-    /* =========================
-       STEP 3: SHOW REPORT
-    ========================= */
-
+    // renderReport() itself shows reportSection
     renderReport(results);
 
     $('reportSection').scrollIntoView({
@@ -323,7 +331,6 @@ async function verify(){
 
   }
 }
-
 
 
   
@@ -442,27 +449,41 @@ function renderReport(results){
 
   
 function esc(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
-$('chooseBtn').onclick=()=>$('fileInput').click();
-  $('fileInput').onchange=e=>fileSelected(e.target.files[0]);
-  $('analyzeBtn').onclick=analyze;
-  $('manualBtn').onclick=addClaim;
-  $('addBtn').onclick=addClaim;
- // $('searchBtn').onclick=findEvidence;
-  $('verifyBtn').onclick=verify;
-  $('clearBtn').onclick=()=>{
-    imageData='';
-    claims=[];
-    evidence=[];
-    $('fileInput').value='';
-    $('preview').removeAttribute('src');
-    $('text').value='';
-                                                                                                                                                                                                                                                                                                       
-hide('workspace');
-hide('claimsSection');
-hide('evidenceSection');
-hide('reportSection');
-show('dropzone');
-msg('')};
+
+
+$('chooseBtn').onclick = () => $('fileInput').click();
+
+$('fileInput').onchange = e =>
+  fileSelected(e.target.files[0]);
+
+$('analyzeBtn').onclick = analyze;
+
+$('manualBtn').onclick = addClaim;
+
+$('addBtn').onclick = addClaim;
+
+$('verifyBtn').onclick = verify;
+
+$('clearBtn').onclick = () => {
+
+  imageData = '';
+  claims = [];
+  evidence = [];
+
+  $('fileInput').value = '';
+  $('preview').removeAttribute('src');
+  $('text').value = '';
+
+  hide('workspace');
+  hide('claimsSection');
+  hide('evidenceSection');
+  hide('reportSection');
+
+  // Show upload area again
+  show('dropzone');
+
+  msg('');
+};
 
 
   
